@@ -9,6 +9,31 @@ empresas = []
 num_empresas = 0
 alumnos = {}
 
+def add_alumno_to_schedule(empresas, alumnos, nombre_alumno, nombre_empresa):
+    max_positions = 50  # Número máximo de filas en la tabla
+    
+    for position in range(max_positions):
+        conflict = False
+        
+        # Verificar si la posición actual está ocupada por el mismo alumno en alguna empresa
+        for empresa in empresas:
+            if len(alumnos[empresa]) > position:
+                if alumnos[empresa][position] == nombre_alumno:
+                    conflict = True
+                    break
+
+        # Si no hay conflicto, añadimos al alumno a la empresa especificada
+        if not conflict:
+            while len(alumnos[nombre_empresa]) <= position:
+                alumnos[nombre_empresa].append("null")
+            if alumnos[nombre_empresa][position] == "null":
+                alumnos[nombre_empresa][position] = nombre_alumno
+                return  # Alumno añadido exitosamente
+
+    return "No hay posiciones libres disponibles para añadir al alumno."
+
+
+
 # Función para cambiar a la pantalla del formulario
 def show_form():
     main_frame.pack_forget()
@@ -36,8 +61,10 @@ def add_empresa():
     def save_empresa():
         global num_empresas
         nombre_empresa = empresa_entry.get()
-        if nombre_empresa and num_empresas < 50:  # Limitar a 50 empresas
-            empresas.append(nombre_empresa)
+        if nombre_empresa.lower() in empresas:
+            messagebox.showerror("Error", "Empresa ya agregada.")
+        elif nombre_empresa and num_empresas < 50:  # Limitar a 50 empresas
+            empresas.append(nombre_empresa.lower())
             alumnos[nombre_empresa] = []
             num_empresas += 1
             empresa_window.destroy()
@@ -55,10 +82,11 @@ def add_alumno():
     def save_alumno():
         nombre_alumno = alumno_entry.get()
         nombre_empresa = empresa_combobox.get()
-        if nombre_alumno.lower() in alumnos[nombre_empresa]:  # Verificar si el nombre es "hola"
+        if nombre_alumno.lower() in alumnos[nombre_empresa]:
             messagebox.showerror("Error", "Alumno ya agregado.")
         elif nombre_alumno and nombre_empresa in empresas:
-            alumnos[nombre_empresa].append(nombre_alumno.lower())
+            # a la hora de agregarlo tengo que controlar que no se choque con otros. Puedo agregar uno que sea null.
+            add_alumno_to_schedule(empresas, alumnos, nombre_alumno.lower(), nombre_empresa)
             alumno_window.destroy()
             show_data_page()
 
