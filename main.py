@@ -1,6 +1,6 @@
 import tkinter as tk
-from tkinter import ttk
-from tkinter import messagebox
+from tkinter import ttk, filedialog, messagebox
+from openpyxl import load_workbook
 from form import create_form_frame
 from data_page import create_data_frame
 
@@ -36,6 +36,28 @@ def add_alumno_to_schedule(empresas, alumnos, nombre_alumno, nombre_empresa):
 
     return "No hay posiciones libres disponibles para añadir al alumno."
 
+def import_from_xlsx():
+    global empresas, alumnos, num_empresas
+
+    file_path = filedialog.askopenfilename(defaultextension=".xlsx", filetypes=[("Excel files", "*.xlsx")])
+    if file_path:
+        wb = load_workbook(file_path)
+        ws = wb.active
+
+        # Obtener la lista de empresas
+        empresas = [cell.value for cell in ws[1] if cell.value != "Horas"]
+        num_empresas = len(empresas)
+        alumnos = {empresa: [] for empresa in empresas}
+
+        # Leer los datos de las filas
+        for row in ws.iter_rows(min_row=2, values_only=True):
+            hora = row[0]  # Hora es la primera columna
+            for col_index, value in enumerate(row[1:], start=0):
+                if value and value != "null":
+                    empresa = empresas[col_index]
+                    add_alumno_to_schedule(empresas, alumnos, value.lower(), empresa)
+
+        show_data_page(hora_general, tiempo_entrevista_general, tiempo_cambio_general)
 
 
 # Función para cambiar a la pantalla del formulario
@@ -127,6 +149,7 @@ root.config(menu=menubar)
 # Crear un menú de opciones
 file_menu = tk.Menu(menubar, tearoff=0)
 file_menu.add_command(label="Nuevo Horario", command=show_form)
+file_menu.add_command(label="Importar XLSX", command=import_from_xlsx)
 file_menu.add_command(label="Salir", command=root.quit)
 menubar.add_cascade(label="Archivo", menu=file_menu)
 
@@ -152,6 +175,9 @@ main_label.pack(pady=20)
 
 nuevo_horario_button = ttk.Button(main_frame, text="Nuevo Horario", command=show_form)
 nuevo_horario_button.pack(pady=10)
+
+import_xlsx_button = ttk.Button(main_frame, text="Importar XLSX", command=import_from_xlsx)
+import_xlsx_button.pack(pady=10)
 
 dummy_button = ttk.Button(main_frame, text="Botón sin acción")
 dummy_button.pack(pady=10)
