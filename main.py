@@ -9,6 +9,10 @@ empresas = []
 num_empresas = 0
 alumnos = {}
 
+hora_general = "15:00"
+tiempo_entrevista_general = "5"
+tiempo_cambio_general = "1"
+
 def add_alumno_to_schedule(empresas, alumnos, nombre_alumno, nombre_empresa):
     max_positions = 50  # Número máximo de filas en la tabla
     
@@ -48,11 +52,22 @@ def back_to_main():
 
 # Función para mostrar la página de datos
 def show_data_page(hora='', tiempo_entrevista='', tiempo_cambio=''):
+    global hora_general
+    global tiempo_entrevista_general
+    global tiempo_cambio_general
+
+    if hora != '':
+        hora_general = hora
+    if tiempo_entrevista != '':
+        tiempo_entrevista_general = tiempo_entrevista
+    if tiempo_cambio != '':
+        tiempo_cambio_general = tiempo_cambio
+
     form_frame.pack_forget()
     main_frame.pack_forget()
     for widget in data_frame.winfo_children():
         widget.destroy()
-    create_data_frame(data_frame, back_to_main, hora, tiempo_entrevista, tiempo_cambio, empresas, num_empresas, alumnos, add_empresa, add_alumno)
+    create_data_frame(data_frame, back_to_main, hora_general, tiempo_entrevista_general, tiempo_cambio_general, empresas, num_empresas, alumnos, add_empresa, add_alumno)
     data_frame.pack(fill='both', expand=True)
 
 # Función para añadir una empresa
