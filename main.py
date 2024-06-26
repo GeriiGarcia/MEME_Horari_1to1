@@ -55,10 +55,10 @@ def add_alumno():
     def save_alumno():
         nombre_alumno = alumno_entry.get()
         nombre_empresa = empresa_combobox.get()
-        if nombre_alumno.lower() == "hola":  # Verificar si el nombre es "hola"
-            messagebox.showerror("Error", "El nombre del alumno no puede ser 'hola'.")
+        if nombre_alumno.lower() in alumnos[nombre_empresa]:  # Verificar si el nombre es "hola"
+            messagebox.showerror("Error", "Alumno ya agregado.")
         elif nombre_alumno and nombre_empresa in empresas:
-            alumnos[nombre_empresa].append(nombre_alumno)
+            alumnos[nombre_empresa].append(nombre_alumno.lower())
             alumno_window.destroy()
             show_data_page()
 
