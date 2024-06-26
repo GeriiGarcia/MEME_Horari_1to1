@@ -1,7 +1,13 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
 from form import create_form_frame
 from data_page import create_data_frame
+
+# Variables globales para almacenar empresas y alumnos
+empresas = []
+num_empresas = 0
+alumnos = {}
 
 # Función para cambiar a la pantalla del formulario
 def show_form():
@@ -21,13 +27,55 @@ def show_data_page(hora='', tiempo_entrevista='', tiempo_cambio=''):
     main_frame.pack_forget()
     for widget in data_frame.winfo_children():
         widget.destroy()
-    create_data_frame(data_frame, back_to_main, hora, tiempo_entrevista, tiempo_cambio)
+    create_data_frame(data_frame, back_to_main, hora, tiempo_entrevista, tiempo_cambio, empresas, num_empresas, alumnos, add_empresa, add_alumno)
     data_frame.pack(fill='both', expand=True)
+
+# Función para añadir una empresa
+def add_empresa():
+    global num_empresas
+    def save_empresa():
+        global num_empresas
+        nombre_empresa = empresa_entry.get()
+        if nombre_empresa and num_empresas < 50:  # Limitar a 50 empresas
+            empresas.append(nombre_empresa)
+            alumnos[nombre_empresa] = []
+            num_empresas += 1
+            empresa_window.destroy()
+            show_data_page()
+
+    empresa_window = tk.Toplevel(root)
+    empresa_window.title("Añadir Empresa")
+    ttk.Label(empresa_window, text="Nombre de la Empresa:").pack(pady=10)
+    empresa_entry = ttk.Entry(empresa_window)
+    empresa_entry.pack(pady=5)
+    ttk.Button(empresa_window, text="Guardar", command=save_empresa).pack(pady=10)
+
+# Función para añadir un alumno
+def add_alumno():
+    def save_alumno():
+        nombre_alumno = alumno_entry.get()
+        nombre_empresa = empresa_combobox.get()
+        if nombre_alumno.lower() == "hola":  # Verificar si el nombre es "hola"
+            messagebox.showerror("Error", "El nombre del alumno no puede ser 'hola'.")
+        elif nombre_alumno and nombre_empresa in empresas:
+            alumnos[nombre_empresa].append(nombre_alumno)
+            alumno_window.destroy()
+            show_data_page()
+
+    alumno_window = tk.Toplevel(root)
+    alumno_window.title("Añadir Alumno")
+    ttk.Label(alumno_window, text="Nombre del Alumno:").pack(pady=10)
+    alumno_entry = ttk.Entry(alumno_window)
+    alumno_entry.pack(pady=5)
+    ttk.Label(alumno_window, text="Nombre de la Empresa:").pack(pady=10)
+    empresa_combobox = ttk.Combobox(alumno_window, values=empresas[:num_empresas])
+    empresa_combobox.pack(pady=5)
+    ttk.Button(alumno_window, text="Guardar", command=save_alumno).pack(pady=10)
 
 # Crear la ventana principal
 root = tk.Tk()
 root.title("1to1 APP")
-root.geometry("600x500")
+root.geometry("800x600")
 
 # Crear el menú principal
 menubar = tk.Menu(root)
@@ -41,8 +89,8 @@ menubar.add_cascade(label="Archivo", menu=file_menu)
 
 # Crear otro menú de opciones (desplegable)
 edit_menu = tk.Menu(menubar, tearoff=0)
-edit_menu.add_command(label="Opción 1")
-edit_menu.add_command(label="Opción 2")
+edit_menu.add_command(label="Añadir Empresa", command=add_empresa)
+edit_menu.add_command(label="Añadir Alumno", command=add_alumno)
 menubar.add_cascade(label="Editar", menu=edit_menu)
 
 # Frame del menú principal
