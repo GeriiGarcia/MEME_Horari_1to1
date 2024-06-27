@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
 from datetime import datetime, timedelta
+from tkinter import simpledialog 
 import openpyxl
 from openpyxl import Workbook
 from Levenshtein import distance as levenshtein_distance
@@ -67,6 +68,12 @@ def create_data_frame(data_frame, back_to_main, hora='', tiempo_entrevista='', t
 
         def colorear_similares():
             # Recorrer el diccionario de alumnos y las empresas para encontrar similares
+
+                        # Pedir al usuario la distancia de Levenshtein deseada
+            distancia = simpledialog.askinteger("Distancia de Levenshtein", "Ingrese la distancia máxima para considerar como similar:")
+            if distancia is None:
+                return  # Si el usuario cancela, salir de la función
+            
             tags_dict = {}
 
             for empresa in empresas[:num_empresas]:
@@ -77,7 +84,7 @@ def create_data_frame(data_frame, back_to_main, hora='', tiempo_entrevista='', t
                                 for j, alumno_j in enumerate(alumnos[empresa2]):
                                     if (empresa != empresa2 or i != j) and alumno_i != "" and alumno_j != "":
                                         dist = levenshtein_distance(alumno_i, alumno_j)
-                                        if dist == 1 or dist ==2:
+                                        if dist == distancia:
                                             print(f"Empresa: {empresa} - Alumno: {alumno_i} en la fila {i + 1} con distancia {dist}")
                                             print(f"Empresa: {empresa2} - Alumno: {alumno_j} en la fila {j + 1} con distancia {dist}")
                                             print(" ")
@@ -135,7 +142,7 @@ def create_data_frame(data_frame, back_to_main, hora='', tiempo_entrevista='', t
                         for jj, cell2 in enumerate(row2):
                             if jj == 0:  # Ignorar la columna de horas
                                 continue
-                            if (i != ii or j != jj) and cell and cell2 and (levenshtein_distance(cell, cell2) == 1 or levenshtein_distance(cell, cell2) == 2):
+                            if (i != ii or j != jj) and cell and cell2 and (levenshtein_distance(cell, cell2) == distancia):
                                 labels[i][j].config(bg='yellow')
                                 labels[ii][jj].config(bg='yellow')
 
@@ -155,7 +162,7 @@ def create_data_frame(data_frame, back_to_main, hora='', tiempo_entrevista='', t
                                 for j, alumno_j in enumerate(alumnos[empresa2]):
                                     if (empresa != empresa2 or i != j) and alumno_i != "" and alumno_j != "":
                                         dist = levenshtein_distance(alumno_i, alumno_j)
-                                        if dist == 1 or dist == 2:
+                                        if dist == distancia:
                                             tag_name = f"similar_{empresa}_{i}_{empresa2}_{j}"
                                             if (empresa, i) not in tags_dict:
                                                 tags_dict[(empresa, i)] = []
